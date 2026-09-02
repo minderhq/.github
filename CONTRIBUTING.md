@@ -5,14 +5,16 @@ its own `CONTRIBUTING.md` with specifics.
 
 ## Where work is tracked
 
-The [**minder** issue tracker](https://github.com/minderhq/minder/issues) is the
-single source of truth for planned work across the org. Search it before opening
-a new issue to avoid duplicates.
+Each repository's own **issue tracker** is the source of truth for that repo's
+work — open an issue in the repo it concerns (SDK issues on
+[`plugin-sdk`](https://github.com/minderhq/plugin-sdk), catalog issues on
+[`plugins`](https://github.com/minderhq/plugins), docs on
+[`docs`](https://github.com/minderhq/docs), and so on). Search it first to avoid
+duplicates.
 
 ## Issues & pull requests
 
-We follow a light governance model (full spec:
-[`docs/development/issue-and-pr-conventions.md`](https://github.com/minderhq/minder/blob/main/docs/development/issue-and-pr-conventions.md)):
+We follow a light governance model:
 
 - **Issues** use a native **Issue Type** (Bug / Feature / Docs / …) plus
   `priority:*` and `component:*` labels — *not* a "kind" label.
