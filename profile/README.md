@@ -5,6 +5,8 @@
   tool ecosystem — on hardware you own.</b>
 </p>
 
+<p align="center"><a href="https://minderhq.github.io/www/">Website</a> · <a href="https://minderhq.github.io/docs/">Docs</a></p>
+
 ---
 
 Minder is a **self-hostable, local-first** AI platform. It runs on your own
@@ -19,7 +21,7 @@ hardware and gives you:
 
 The Minder **platform is a product**; its **ecosystem is open source** and lives in
 the public repositories below — the plugin SDK, the plugin catalog, the web
-console, and the documentation. Build on them freely.
+console, the CLI, and the documentation. Build on them freely.
 
 ## Open-source repositories
 
@@ -29,7 +31,8 @@ console, and the documentation. Build on them freely.
 | [**plugin-template**](https://github.com/minderhq/plugin-template) | "Use this template" scaffold for a new plugin |
 | [**plugins**](https://github.com/minderhq/plugins) | First-party & community plugin catalog |
 | [**client**](https://github.com/minderhq/client) | The Minder management console (web UI) |
-| [**docs**](https://github.com/minderhq/docs) | Documentation — product, self-hosting, plugin authoring |
+| [**cli**](https://github.com/minderhq/cli) | `minder` — a command-line client for scripting against an instance |
+| [**docs**](https://github.com/minderhq/docs) | Documentation — product, self-hosting, CLI, plugin authoring |
 
 ## Get involved
 
