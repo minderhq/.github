@@ -4,11 +4,9 @@
 
 **Please do not open a public issue for security problems.**
 
-Report privately via GitHub's
-[**private vulnerability reporting**](https://github.com/minderhq/minder/security/advisories/new)
-on the affected repository (Security → *Report a vulnerability*). If that is
-unavailable, email **security@minder.local** (replace with the org's real
-security contact) with:
+Report privately by email to **utkan.sevimli@outlook.com**, or — for a public
+repository — via GitHub's **private vulnerability reporting** (the repo's
+Security tab → *Report a vulnerability*). Include:
 
 - a description of the issue and its impact,
 - steps to reproduce (a minimal proof-of-concept helps),
@@ -25,10 +23,8 @@ leaves the box. A few security properties are intentional by design:
 - **Plugins run no arbitrary uploaded code** — they are manifest/handler based, so
   a malicious "plugin" cannot execute code by construction.
 - Host ports are loopback-bound; external access is reverse-proxy + SSO gated.
-- Some hardening is explicitly deferred and **documented as such** in
-  [`docs/operations/security-architecture.md`](https://github.com/minderhq/minder/blob/main/docs/operations/security-architecture.md)
-  — a documented, tracked tradeoff is not a vulnerability, but if you think one is
-  mis-scoped, tell us.
+- Some hardening is explicitly deferred as a documented, tracked tradeoff — that
+  is not a vulnerability, but if you think one is mis-scoped, tell us.
 
 ## Supported versions
 
