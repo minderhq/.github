@@ -33,6 +33,7 @@ console, the CLI, and the documentation. Build on them freely.
 | [**client**](https://github.com/minderhq/client) | The Minder management console (web UI) |
 | [**cli**](https://github.com/minderhq/cli) | `minder` — a command-line client for scripting against an instance |
 | [**docs**](https://github.com/minderhq/docs) | Documentation — product, self-hosting, CLI, plugin authoring |
+| [**deploy**](https://github.com/minderhq/deploy) | Self-hosted deployment — Helm chart & self-host app-store listings |
 
 ## Get involved
 

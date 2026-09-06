@@ -7,5 +7,6 @@
 ## Checklist
 
 - [ ] PR title uses a **Conventional-Commits** prefix (`feat:` / `fix:` / `docs:` / `refactor:` / `test:` / `security:` / `deps:` / `chore:`)
+- [ ] Labelled with the affected **`component:*`** label(s)
 - [ ] Docs updated in the same change (if behaviour or usage changed)
 - [ ] CI is green — format, lint, type-check, and tests pass
