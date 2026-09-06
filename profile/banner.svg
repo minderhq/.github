@@ -5,11 +5,6 @@
       <stop offset="0.55" stop-color="#4338ca"/>
       <stop offset="1" stop-color="#6366f1"/>
     </linearGradient>
-    <style>
-      .wm { font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 700; }
-      .tag { font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 400; }
-      .meta { font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif; font-weight: 600; letter-spacing: 3px; }
-    </style>
   </defs>
 
   <rect x="0" y="0" width="1200" height="300" rx="24" fill="url(#bg)"/>
@@ -32,8 +27,8 @@
     <circle cx="930" cy="215" r="8" opacity="0.75"/>
   </g>
 
-  <!-- wordmark -->
-  <text x="80" y="150" class="wm" font-size="92" fill="#ffffff" letter-spacing="1">Minder</text>
-  <text x="84" y="200" class="tag" font-size="30" fill="#c7d2fe">Your private AI platform.</text>
-  <text x="84" y="242" class="meta" font-size="15" fill="#a5b4fc">LOCAL-FIRST · SELF-HOSTED · OPEN ECOSYSTEM</text>
+  <!-- wordmark (typography inlined as presentation attributes so it renders even if <style> is sanitized) -->
+  <text x="80" y="150" font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="700" font-size="92" letter-spacing="1" fill="#ffffff">Minder</text>
+  <text x="84" y="200" font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="400" font-size="30" fill="#c7d2fe">Your private AI platform.</text>
+  <text x="84" y="242" font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="600" font-size="15" letter-spacing="3" fill="#a5b4fc">LOCAL-FIRST · SELF-HOSTED · OPEN ECOSYSTEM</text>
 </svg>
