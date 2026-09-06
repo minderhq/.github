@@ -1,0 +1,4 @@
+# Org-wide "Sponsor" button config. Minder is a commercial product; the button
+# points to the project's home for now. Swap in a real GitHub Sponsors handle
+# (github: [name]) or other platform if/when one is set up.
+custom: ["https://minderhq.github.io/www/"]

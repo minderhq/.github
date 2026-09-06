@@ -3,6 +3,9 @@ contact_links:
   - name: Documentation
     url: https://minderhq.github.io/docs/
     about: Product, self-hosting, CLI, and plugin-authoring guides — check here first.
+  - name: Questions & ideas (Discussions)
+    url: https://github.com/minderhq/plugin-sdk/discussions
+    about: For usage questions, ideas, and show-and-tell — prefer Discussions over issues.
   - name: Report a security vulnerability
     url: https://github.com/minderhq/.github/blob/main/SECURITY.md
     about: Do NOT open a public issue for security problems — follow the security policy (private reporting).
