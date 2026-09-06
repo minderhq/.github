@@ -1,11 +1,17 @@
-<h1 align="center">Minder</h1>
-
 <p align="center">
-  <b>Your private AI platform — local inference, your own data, and an extensible
-  tool ecosystem — on hardware you own.</b>
+  <img src="banner.svg" alt="Minder — your private AI platform" width="100%">
 </p>
 
-<p align="center"><a href="https://minderhq.github.io/www/">Website</a> · <a href="https://minderhq.github.io/docs/">Docs</a></p>
+<p align="center">
+  <b>Local inference, your own data, and an extensible tool ecosystem — on hardware you own.</b>
+</p>
+
+<p align="center">
+  <a href="https://minderhq.github.io/www/"><img src="https://img.shields.io/badge/website-minderhq-4f46e5?style=flat-square" alt="Website"></a>
+  <a href="https://minderhq.github.io/docs/"><img src="https://img.shields.io/badge/docs-read-4f46e5?style=flat-square" alt="Docs"></a>
+  <a href="https://github.com/minderhq/plugin-sdk/discussions"><img src="https://img.shields.io/badge/discussions-join-4f46e5?style=flat-square" alt="Discussions"></a>
+  <a href="https://github.com/minderhq/plugin-sdk/blob/main/LICENSE"><img src="https://img.shields.io/badge/ecosystem-Apache--2.0-4f46e5?style=flat-square" alt="Ecosystem license: Apache-2.0"></a>
+</p>
 
 ---
 
