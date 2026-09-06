@@ -29,6 +29,20 @@ The Minder **platform is a product**; its **ecosystem is open source** and lives
 the public repositories below — the plugin SDK, the plugin catalog, the web
 console, the CLI, and the documentation. Build on them freely.
 
+## Two ways in
+
+**Run the platform** — self-host the full stack on hardware you own. Follow the
+[self-hosting guide](https://minderhq.github.io/docs/self-hosting/); a free tier
+lets you evaluate it end to end, and a license unlocks the full product.
+
+**Build on it** — write a plugin with the
+[SDK](https://github.com/minderhq/plugin-sdk) and
+[template](https://github.com/minderhq/plugin-template) (declarative, no uploaded
+code) and share it in the [catalog](https://github.com/minderhq/plugins).
+
+→ [Read the docs](https://minderhq.github.io/docs/) ·
+[Join a discussion](https://github.com/minderhq/plugin-sdk/discussions)
+
 ## Open-source repositories
 
 | Repo | What |
