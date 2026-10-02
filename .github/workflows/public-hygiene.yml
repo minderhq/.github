@@ -1,0 +1,166 @@
+# Reusable public-repository hygiene check.
+#
+# Fails when a tracked file in a PUBLIC Minder repository references a private
+# resource that outside readers cannot reach, or leaks internal infrastructure:
+#
+#   private-repo-url  links into the private repositories (minder, adrs,
+#                     mindhub, .claude, plugin-private-dogfood) -- issues,
+#                     pulls, blob/tree paths or the repo itself
+#   private-repo-ref  cross-repo issue/PR references (`minderhq/<private-repo>#<n>`)
+#   internal-host     tailnet hostnames (*.ts.net) and internal machine names
+#   tailnet-ip        addresses in the Tailscale CGNAT range (100.64/10)
+#
+# Internal machine names are matched by SHA-256 prefix, so this public file
+# does not itself publish them. To add one:
+#   python3 -c 'import hashlib,sys;print(hashlib.sha256(sys.argv[1].lower().encode()).hexdigest()[:16])' NAME
+#
+# Policy: a public file must make sense to a reader with no private access.
+# Rewrite a hit into neutral wording (drop the bare tracker reference and let
+# the comment stand on its own, or link the public equivalent: docs site,
+# website, Discussions). Only genuinely harmless hits (e.g. documentation
+# example addresses in an SSRF test, a licensed-install instruction that says
+# it needs private access) belong in the allowlist, each with a reason.
+# Traceability to private trackers belongs in PR bodies, which are not scanned.
+#
+# Allowlist: `.github/public-hygiene-allowlist.txt` in the calling repo (path
+# configurable). One entry per line:
+#
+#   <python regex>  # <reason>
+#
+# The regex is searched against `<path>:<line text>` of each hit. Blank lines
+# and lines starting with `#` are ignored; an entry without a reason is an
+# error, and an entry that no longer matches anything is reported as stale.
+# The allowlist file itself is never scanned.
+#
+# Callers must NOT use paths-ignore for Markdown: docs are where links live.
+#
+#   jobs:
+#     hygiene:
+#       uses: minderhq/.github/.github/workflows/public-hygiene.yml@main
+
+name: Public hygiene
+
+on:
+  workflow_call:
+    inputs:
+      allowlist-path:
+        description: Path of the allowlist file in the calling repository.
+        type: string
+        default: .github/public-hygiene-allowlist.txt
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    name: Private-reference scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan tracked files for private references
+        env:
+          ALLOWLIST: ${{ inputs.allowlist-path }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import ipaddress
+          import os
+          import re
+          import subprocess
+          import sys
+
+          PRIVATE_REPOS = r"(?:minder|adrs|mindhub|\.claude|plugin-private-dogfood)"
+          RULES = [
+              ("private-repo-url",
+               re.compile(r"github\.com/minderhq/" + PRIVATE_REPOS + r"(?![\w-])", re.I)),
+              ("private-repo-ref",
+               re.compile(r"\bminderhq/" + PRIVATE_REPOS + r"#\d+", re.I)),
+              ("internal-host", re.compile(r"\b[a-z0-9-]+\.ts\.net\b", re.I)),
+          ]
+          # sha256(name)[:16] of internal machine / tailnet names (see header).
+          INTERNAL_HOSTS = {
+              "429b4020eeefed43", "4a8a20a037bfd77e",
+              "1ff8ef334083c30e", "0d33171fdfd1ebaa",
+          }
+          WORD = re.compile(r"[a-z0-9][a-z0-9-]*")
+
+
+          def internal_host(text):
+              for word in WORD.findall(text.lower()):
+                  for part in {word, *word.split("-")}:
+                      if hashlib.sha256(part.encode()).hexdigest()[:16] in INTERNAL_HOSTS:
+                          return True
+              return False
+
+
+          IPV4 = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")
+          TAILNET = ipaddress.ip_network((0x64400000, 10))  # Tailscale CGNAT /10
+          MAX_BYTES = 2_000_000
+
+          allow_path = os.environ.get("ALLOWLIST", ".github/public-hygiene-allowlist.txt")
+          allow, bad = [], 0
+          if os.path.isfile(allow_path):
+              with open(allow_path, encoding="utf-8") as fh:
+                  for n, raw in enumerate(fh, 1):
+                      line = raw.strip()
+                      if not line or line.startswith("#"):
+                          continue
+                      pattern, sep, reason = line.rpartition(" # ")
+                      if not sep or not pattern.strip() or not reason.strip():
+                          print(f"::error file={allow_path},line={n}::allowlist entry needs "
+                                f"'<regex>  # <reason>'")
+                          bad += 1
+                          continue
+                      try:
+                          allow.append([re.compile(pattern.strip()), n, 0])
+                      except re.error as exc:
+                          print(f"::error file={allow_path},line={n}::invalid regex: {exc}")
+                          bad += 1
+
+          files = subprocess.run(["git", "ls-files", "-z"], check=True,
+                                 capture_output=True).stdout.decode().split("\0")
+          hits = 0
+          for path in filter(None, files):
+              if path == allow_path or not os.path.isfile(path):
+                  continue
+              if os.path.getsize(path) > MAX_BYTES:
+                  continue
+              with open(path, "rb") as fh:
+                  data = fh.read()
+              if b"\0" in data:
+                  continue  # binary
+              for lineno, text in enumerate(data.decode("utf-8", "replace").splitlines(), 1):
+                  found = [name for name, rx in RULES if rx.search(text)]
+                  if "internal-host" not in found and internal_host(text):
+                      found.append("internal-host")
+                  for ip in IPV4.findall(text):
+                      try:
+                          if ipaddress.ip_address(ip) in TAILNET:
+                              found.append("tailnet-ip")
+                              break
+                      except ValueError:
+                          pass
+                  if not found:
+                      continue
+                  subject = f"{path}:{text}"
+                  entry = next((e for e in allow if e[0].search(subject)), None)
+                  if entry:
+                      entry[2] += 1
+                      continue
+                  hits += 1
+                  print(f"::error file={path},line={lineno}::{', '.join(found)}: "
+                        f"{text.strip()[:200]}")
+
+          for rx, n, used in allow:
+              if not used:
+                  print(f"::warning file={allow_path},line={n}::stale allowlist entry "
+                        f"(matches nothing): {rx.pattern}")
+
+          if hits or bad:
+              print(f"{hits} private reference(s), {bad} bad allowlist entr(y/ies). "
+                    "Rewrite to neutral public wording, or allowlist a harmless hit with a "
+                    f"reason in {allow_path}.")
+              sys.exit(1)
+          print("No private references found.")
+          PY

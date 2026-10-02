@@ -1,0 +1,127 @@
+# Reusable Python CI for Minder's public Python repositories.
+#
+# One definition of the lint -> type-check -> test pipeline that plugins,
+# plugin-sdk, plugin-template and cli used to copy-paste (and let drift).
+# A caller keeps its own triggers, concurrency and any repo-specific jobs, and
+# replaces its Python job with:
+#
+#   jobs:
+#     test:
+#       uses: minderhq/.github/.github/workflows/python-ci.yml@main
+#       with:
+#         python-versions: '["3.11", "3.12"]'
+#         lint-paths: src tests
+#
+# Repo-specific checks that need the installed environment (contract
+# validation, `uv build`, ...) go in `pre-test-run` / `post-test-run`, so they
+# stay defined in the calling repo.
+#
+# Always GitHub-hosted: these repos are public, and the org's self-hosted pool
+# must never run public (fork) code.
+
+name: Python CI
+
+on:
+  workflow_call:
+    inputs:
+      python-versions:
+        description: JSON array of Python versions to test, e.g. '["3.11", "3.12"]'.
+        type: string
+        default: '["3.12"]'
+      install-command:
+        description: Command that installs the project and its dev tools into the active venv.
+        type: string
+        default: uv pip install -e ".[dev]"
+      cache-dependency-glob:
+        description: Glob whose contents key the uv cache.
+        type: string
+        default: pyproject.toml
+      lint-paths:
+        description: Space-separated paths passed to black and flake8.
+        type: string
+        default: .
+      flake8-max-line-length:
+        description: flake8 --max-line-length.
+        type: number
+        default: 100
+      flake8-extend-ignore:
+        description: flake8 --extend-ignore (E203/W503 conflict with black).
+        type: string
+        default: E203,W503
+      run-mypy:
+        description: Whether to run mypy.
+        type: boolean
+        default: true
+      mypy-paths:
+        description: Space-separated paths passed to mypy.
+        type: string
+        default: .
+      pre-test-run:
+        description: Optional shell script run after lint/type-check and before tests.
+        type: string
+        default: ''
+      test-command:
+        description: Test command.
+        type: string
+        default: pytest -q
+      post-test-run:
+        description: Optional shell script run after tests (e.g. `uv build`).
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJSON(inputs.python-versions) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        # SHA-pinned (org convention since the TruffleHog CVE-2026-33634
+        # incident). Pins the matrix Python via UV_PYTHON (uv fetches a managed
+        # build). activate-environment creates a venv outside the checkout (so
+        # black/flake8/mypy never scan it) and puts it on PATH for later steps.
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7  # v10.2.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          activate-environment: true
+          venv-path: ${{ runner.temp }}/venv
+          enable-cache: true
+          cache-dependency-glob: ${{ inputs.cache-dependency-glob }}
+
+      - name: Install
+        run: ${{ inputs.install-command }}
+
+      - name: Lint
+        env:
+          LINT_PATHS: ${{ inputs.lint-paths }}
+          MAX_LINE: ${{ inputs.flake8-max-line-length }}
+          EXTEND_IGNORE: ${{ inputs.flake8-extend-ignore }}
+        # $LINT_PATHS / $MYPY_PATHS are deliberately unquoted: word-splitting
+        # turns the space-separated input into separate path arguments.
+        run: |
+          black --check $LINT_PATHS
+          flake8 --max-line-length="$MAX_LINE" --extend-ignore="$EXTEND_IGNORE" $LINT_PATHS
+
+      - name: Type-check
+        if: inputs.run-mypy
+        env:
+          MYPY_PATHS: ${{ inputs.mypy-paths }}
+        run: mypy $MYPY_PATHS
+
+      - name: Pre-test checks
+        if: inputs.pre-test-run != ''
+        run: ${{ inputs.pre-test-run }}
+
+      - name: Test
+        run: ${{ inputs.test-command }}
+
+      - name: Post-test steps
+        if: inputs.post-test-run != ''
+        run: ${{ inputs.post-test-run }}
