@@ -36,8 +36,8 @@
 #
 # A second job (pull requests only) checks every commit's author and committer
 # identity: a machine identity -- a `root` local part, a host-only or
-# internal-TLD domain (.local/.lan/.internal/.localdomain/.ts.net), or a domain
-# label that is an internal machine name (hash-matched, as above) -- would
+# internal-TLD domain (.local/.lan/.internal/.home.arpa/.corp/.ts.net, ...), or a
+# domain label (or one of its hyphen parts) that is an internal machine name (hash-matched, as above) -- would
 # publish an internal hostname in the repository's history forever. Personal
 # and GitHub noreply addresses pass. Fix with the noreply identity:
 #   git config --global user.email "<id>+<login>@users.noreply.github.com"
@@ -202,7 +202,10 @@ jobs:
               "cf4b9c1f5eb31deb",
               "45366849ffd75b4c", "7f331a0764ad607c",
           }
-          INTERNAL_TLDS = (".local", ".lan", ".internal", ".localdomain", ".ts.net")
+          INTERNAL_TLDS = (
+              ".local", ".lan", ".internal", ".localdomain", ".localhost",
+              ".home", ".home.arpa", ".corp", ".ts.net",
+          )
 
 
           def why(email):
@@ -216,8 +219,9 @@ jobs:
               if domain.endswith(INTERNAL_TLDS):
                   return "an internal-network domain"
               for label in domain.split("."):
-                  if hashlib.sha256(label.encode()).hexdigest()[:16] in INTERNAL:
-                      return "an internal machine name"
+                  for part in {label, *label.split("-")}:
+                      if hashlib.sha256(part.encode()).hexdigest()[:16] in INTERNAL:
+                          return "an internal machine name"
               return None
 
 
