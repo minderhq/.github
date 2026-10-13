@@ -34,6 +34,15 @@
 #
 # Callers must NOT use paths-ignore for Markdown: docs are where links live.
 #
+# A second job (pull requests only) checks every commit's author and committer
+# identity: a machine identity -- a `root` local part, a host-only or
+# internal-TLD domain (.local/.lan/.internal/.localdomain/.ts.net), or a domain
+# label that is an internal machine name (hash-matched, as above) -- would
+# publish an internal hostname in the repository's history forever. Personal
+# and GitHub noreply addresses pass. Fix with the noreply identity:
+#   git config --global user.email "<id>+<login>@users.noreply.github.com"
+# then re-author the PR's commits (e.g. a fresh branch with the same changes).
+#
 #   jobs:
 #     hygiene:
 #       uses: minderhq/.github/.github/workflows/public-hygiene.yml@main
@@ -163,4 +172,72 @@ jobs:
                     f"reason in {allow_path}.")
               sys.exit(1)
           print("No private references found.")
+          PY
+
+  authors:
+    name: Commit-author scan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Refuse machine identities in the PR's commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          import os
+          import subprocess
+          import sys
+
+          # sha256(label)[:16] of internal machine / domain names (see header).
+          INTERNAL = {
+              "429b4020eeefed43", "4a8a20a037bfd77e",
+              "1ff8ef334083c30e", "0d33171fdfd1ebaa",
+              "cf4b9c1f5eb31deb",
+              "45366849ffd75b4c", "7f331a0764ad607c",
+          }
+          INTERNAL_TLDS = (".local", ".lan", ".internal", ".localdomain", ".ts.net")
+
+
+          def why(email):
+              local, _, domain = email.lower().rpartition("@")
+              if not local or not domain:
+                  return "not an email address"
+              if local == "root":
+                  return "a root identity"
+              if "." not in domain:
+                  return "a host-only domain"
+              if domain.endswith(INTERNAL_TLDS):
+                  return "an internal-network domain"
+              for label in domain.split("."):
+                  if hashlib.sha256(label.encode()).hexdigest()[:16] in INTERNAL:
+                      return "an internal machine name"
+              return None
+
+
+          rng = f"{os.environ['BASE_SHA']}..{os.environ['HEAD_SHA']}"
+          out = subprocess.run(
+              ["git", "log", "--format=%H%x09%ae%x09%ce", rng],
+              check=True, capture_output=True, text=True,
+          ).stdout
+          bad = 0
+          for line in filter(None, out.splitlines()):
+              sha, author, committer = line.split("\t")
+              for role, email in (("author", author), ("committer", committer)):
+                  reason = why(email)
+                  if reason:
+                      bad += 1
+                      # Never echo the address: the point is not to publish it.
+                      print(f"::error::commit {sha[:12]}: {role} email is {reason}")
+          if bad:
+              print(f"{bad} machine identit(y/ies). Commit with your GitHub noreply "
+                    "address and re-author these commits (see the workflow header).")
+              sys.exit(1)
+          print("All commit identities are personal or noreply addresses.")
           PY
