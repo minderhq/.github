@@ -33,8 +33,9 @@ console, the CLI, and the documentation. Build on them freely.
 ## Two ways in
 
 **Run the platform** — self-host the full stack on hardware you own. Follow the
-[self-hosting guide](https://minderhq.github.io/docs/self-hosting/). The core is
-a licensed product; a freemium trial is planned.
+[self-hosting guide](https://minderhq.github.io/docs/self-hosting/). The free
+Community tier lets you evaluate it end to end, and a license unlocks the full
+product.
 
 **Build on it** — write a plugin with the
 [SDK](https://github.com/minderhq/plugin-sdk) and
