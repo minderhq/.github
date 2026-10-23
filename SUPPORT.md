@@ -27,8 +27,9 @@ repository it affects**, using the provided templates.
 ## Building a plugin
 
 Start from the [plugin-sdk](https://github.com/minderhq/plugin-sdk) and the
-[plugin-template](https://github.com/minderhq/plugin-template) — plugins are
-manifest-based with no arbitrary code execution.
+[plugin-template](https://github.com/minderhq/plugin-template) — a plugin is
+either reviewed Python code (run isolated, out of process) or a declarative
+manifest that runs no code.
 
 ## Security
 

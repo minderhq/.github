@@ -20,8 +20,14 @@ fix and disclosure timeline. We'll credit reporters who wish to be named.
 Minder is **local-first and self-hosted**; the default posture is that nothing
 leaves the box. A few security properties are intentional by design:
 
-- **Plugins run no arbitrary uploaded code** — they are manifest/handler based, so
-  a malicious "plugin" cannot execute code by construction.
+- **No code uploaded by users runs on the platform.** Catalog plugins are Python
+  code that is reviewed through pull requests to the public catalog, and they run
+  isolated, out of process, in a separate plugin-runner (trusted or privileged
+  runner groups) rather than inside the platform's services. Declarative
+  manifests run no plugin code at all. AI tools declare an `effect`, and tools
+  that write, send or delete pause for explicit approval.
+- The API gateway signs sessions as **EdDSA JWTs** and sends **security response
+  headers** by default.
 - Host ports are loopback-bound; external access is reverse-proxy + SSO gated.
 - Some hardening is explicitly deferred as a documented, tracked tradeoff — that
   is not a vulnerability, but if you think one is mis-scoped, tell us.

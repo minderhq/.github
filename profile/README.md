@@ -20,8 +20,9 @@ hardware and gives you:
 
 - **RAG + a knowledge graph** over your own documents and data,
 - **local LLMs** via Ollama — no cloud keys, nothing leaves the box by default,
-- an **extensible plugin & tool ecosystem** with *no arbitrary code execution* —
-  plugins are manifest-based, fixed, reviewed handlers,
+- an **extensible plugin & tool ecosystem** — declarative manifests that run no
+  plugin code, and reviewed Python plugins that run isolated, out of process;
+  AI tools that write, send or delete pause for your approval,
 - **one modern control-plane UI** for everything that isn't chat,
 - and **honest, verifiable** capabilities — if it can't be shown working, it isn't done.
 
@@ -32,13 +33,14 @@ console, the CLI, and the documentation. Build on them freely.
 ## Two ways in
 
 **Run the platform** — self-host the full stack on hardware you own. Follow the
-[self-hosting guide](https://minderhq.github.io/docs/self-hosting/); a free tier
-lets you evaluate it end to end, and a license unlocks the full product.
+[self-hosting guide](https://minderhq.github.io/docs/self-hosting/). The core is
+a licensed product; a freemium trial is planned.
 
 **Build on it** — write a plugin with the
 [SDK](https://github.com/minderhq/plugin-sdk) and
-[template](https://github.com/minderhq/plugin-template) (declarative, no uploaded
-code) and share it in the [catalog](https://github.com/minderhq/plugins).
+[template](https://github.com/minderhq/plugin-template) (a Python plugin, or a
+declarative manifest that runs no code) and share it in the
+[catalog](https://github.com/minderhq/plugins) through a reviewed pull request.
 
 → [Read the docs](https://minderhq.github.io/docs/) ·
 [Join a discussion](https://github.com/minderhq/plugin-sdk/discussions)
@@ -54,6 +56,9 @@ code) and share it in the [catalog](https://github.com/minderhq/plugins).
 | [**cli**](https://github.com/minderhq/cli) | `minder` — a command-line client for scripting against an instance |
 | [**docs**](https://github.com/minderhq/docs) | Documentation — product, self-hosting, CLI, plugin authoring |
 | [**deploy**](https://github.com/minderhq/deploy) | Self-hosted deployment — Helm chart & self-host app-store listings |
+| [**authoring**](https://github.com/minderhq/authoring) | Claude Code toolkit to scaffold, validate and security-review a plugin (Apache-2.0) |
+| [**academy**](https://github.com/minderhq/academy) | Minder Academy — an AI engineering curriculum ([read online](https://minderhq.github.io/academy/)) |
+| [**www**](https://github.com/minderhq/www) | This marketing site ([minderhq.github.io/www](https://minderhq.github.io/www/)) |
 
 ## Get involved
 

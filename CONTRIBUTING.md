@@ -34,7 +34,9 @@ We follow a light governance model:
 
 Building a plugin? Start from the
 [**plugin-sdk**](https://github.com/minderhq/plugin-sdk) — it defines the contract
-and ships a worked reference. Plugins are declarative and run no uploaded code.
+and ships a worked reference. Plugins are either
+Python code, reviewed through a pull request to the catalog and run isolated out
+of process, or declarative manifests that run no code. No uploaded code runs.
 
 ## Security
 
